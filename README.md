@@ -129,6 +129,32 @@ Project (Container)
 
 ---
 
+<<<<<<< HEAD
+## 🗄️ Database Schema (Overview)
+
+> **Chi tiết đầy đủ xem trực tiếp trong code:**  
+> `api/models/user.py`, `api/models/project.py`, `api/models/ocr.py`, `api/models/component.py`
+
+- **User**: kế thừa `AbstractUser`, dùng `email` làm `USERNAME_FIELD`, thêm `avatar`, `bio`.
+- **Project**: chứa `name`, `description`, `theme` (JSON), `tags`, `thumbnail`, liên kết `owner` và `members` qua `ProjectMember`.
+- **ProjectMember**: liên kết User–Project với `role = owner|editor|viewer`, biết được ai có quyền edit/delete/invite.
+- **Screen**: thuộc về Project, có `width/height`, `background_color`, `components` là **list** component (position/size/properties), cờ `created_from_ocr` và link `ocr_analysis`.
+- **ScreenVersion**: lưu snapshot `components` + metadata (`change_type`, `description`, `changed_components`, `thumbnail`, `created_by`, `created_at`).
+- **OCRAnalysis**: lưu ảnh upload (`image`, `original_filename`), `detected_components` (raw + normalized), `status` (`pending|processing|completed|failed`), `processing_time`.
+- **ComponentTemplate**: template cho library/palette với `category`, `type`, `template_data`, `thumbnail_url`, `tags`, `usage_count`, ownership (`is_system`, `created_by`, `is_public`).
+
+Sơ đồ quan hệ tổng quát:
+
+```text
+User (1) ──────< (N) ProjectMember >──────< (1) Project
+                     │                         │
+                     │                         ├──────< (N) Screen
+                     │                         │          ├──────< (N) ScreenVersion
+                     │                         │
+                     │                         └──────< (N) OCRAnalysis
+                     │
+                     └─ Roles: owner | editor | viewer
+=======
 ## 🗄️ Database Schema
 
 ### 1. **User Model** (Django built-in, extended)
@@ -289,6 +315,7 @@ class Project(models.Model):
   "tags": ["e-commerce", "responsive"],
   "created_at": "2026-03-02T10:00:00Z"
 }
+>>>>>>> origin/main
 ```
 
 ---
@@ -308,6 +335,27 @@ class Screen(models.Model):
     order = IntegerField  # Thứ tự sắp xếp: 0, 1, 2...
 
     # Canvas settings
+<<<<<<< HEAD
+    width = IntegerField (default 1920)
+    height = IntegerField (default 1080)
+    background_color = CharField (default "#ffffff")
+    background_image = ImageField (optional)
+
+    # ⭐ UI Components (JSON Array)
+    components = JSONField  # list[component]
+    # [
+    #   {
+    #     "id": "comp-uuid-1",
+    #     "type": "button",
+    #     "position": { "x": 100, "y": 200 },
+    #     "size": { "width": 120, "height": 40 },
+    #     "properties": {
+    #       "text": "Submit",
+    #       "variant": "primary"
+    #     }
+    #   }
+    # ]
+=======
     canvas_width = IntegerField (default 1200)
     canvas_height = IntegerField (default 800)
     background_color = CharField (default "#ffffff")
@@ -336,6 +384,7 @@ class Screen(models.Model):
     # }
 
     component_order = JSONField  # ["comp-uuid-1", "comp-uuid-2"]
+>>>>>>> origin/main
 
     thumbnail = ImageField (optional)
 
@@ -358,6 +407,25 @@ class Screen(models.Model):
   "screen_type": "page",
   "order": 0,
 
+<<<<<<< HEAD
+  "width": 1440,
+  "height": 1024,
+  "background_color": "#f5f5f5",
+
+  "components": [
+    {
+      "id": "comp-btn-1",
+      "type": "button",
+      "position": { "x": 600, "y": 400 },
+      "size": { "width": 180, "height": 48 },
+      "properties": {
+        "text": "Get Started",
+        "variant": "primary"
+      }
+    }
+  ],
+
+=======
   "canvas_width": 1440,
   "canvas_height": 1024,
   "background_color": "#f5f5f5",
@@ -377,6 +445,7 @@ class Screen(models.Model):
   },
 
   "component_order": ["comp-btn-1"],
+>>>>>>> origin/main
   "created_from_ocr": true,
   "last_saved_at": "2026-03-02T10:20:00Z"
 }
@@ -393,13 +462,28 @@ class OCRAnalysis(models.Model):
     id = UUID
     project = ForeignKey(Project)
 
+<<<<<<< HEAD
+    image = ImageField
+    original_filename = CharField
+    confidence_threshold = FloatField (default 0.5)
+=======
     image_file = ImageField
     image_name = CharField
     confidence_threshold = FloatField
+>>>>>>> origin/main
 
     # Kết quả OCR
     detected_components = JSONField
     # {
+<<<<<<< HEAD
+    #   "raw_response": {...},  # Raw từ Nanonets hoặc mock
+    #   "normalized_components": [...]  # Đã chuẩn hóa
+    # }
+
+    status = CharField  # pending|processing|completed|failed
+    error_message = TextField (optional)
+    processing_time = FloatField (optional, seconds)
+=======
     #   "raw_response": {...},  # Raw từ Nanonets
     #   "normalized_components": [...]  # Đã chuẩn hóa
     # }
@@ -407,6 +491,7 @@ class OCRAnalysis(models.Model):
     status = CharField  # PROCESSING|SUCCESS|FAILED
     error_message = TextField
     processing_time = FloatField
+>>>>>>> origin/main
 
     created_at = DateTime
 ```
@@ -417,23 +502,41 @@ class OCRAnalysis(models.Model):
 {
   "id": "ocr-uuid-1",
   "project_id": "550e8400-e29b-41d4-a716-446655440000",
+<<<<<<< HEAD
+  "image": "ocr_uploads/2026/03/02/homepage_mockup.png",
+  "original_filename": "homepage_mockup.png",
+  "confidence_threshold": 0.7,
+  "detected_components": {
+    "raw_response": {
+      "predictions": ["..."]
+=======
   "image_file": "ocr_uploads/2026/03/02/homepage_mockup.png",
   "confidence_threshold": 0.7,
   "detected_components": {
     "raw_response": {
       "predictions": [...]
+>>>>>>> origin/main
     },
     "normalized_components": [
       {
         "type": "button",
         "content": "Get Started",
+<<<<<<< HEAD
+        "position": { "x": 600, "y": 400 },
+        "style": { "backgroundColor": "#0070f3" },
+=======
         "position": {"x": 600, "y": 400},
         "style": {"backgroundColor": "#0070f3"},
+>>>>>>> origin/main
         "confidence": 0.95
       }
     ]
   },
+<<<<<<< HEAD
+  "status": "completed",
+=======
   "status": "SUCCESS",
+>>>>>>> origin/main
   "processing_time": 2.3,
   "created_at": "2026-03-02T10:05:00Z"
 }
@@ -453,6 +556,17 @@ class ScreenVersion(models.Model):
     version_number = IntegerField  # 1, 2, 3...
 
     # Snapshot components tại version này
+<<<<<<< HEAD
+    components = JSONField  # cùng format list như Screen.components
+
+    change_type = CharField  # OCR_IMPORT|MANUAL_EDIT|AUTO_SAVE|RESTORE|DUPLICATE
+    description = TextField
+    changed_components = JSONField  # ["comp-1", "comp-2"]
+
+    thumbnail = ImageField (optional)
+    created_by = ForeignKey(User, optional)  # ai tạo version này
+
+=======
     components = JSONField
     component_order = JSONField
 
@@ -460,6 +574,7 @@ class ScreenVersion(models.Model):
     description = TextField
     changed_components = JSONField  # ["comp-1", "comp-2"]
 
+>>>>>>> origin/main
     created_at = DateTime
 ```
 
@@ -500,6 +615,39 @@ Thư viện components có sẵn.
 ```python
 class ComponentTemplate(models.Model):
     id = UUID
+<<<<<<< HEAD
+
+    # Thông tin template
+    name = CharField
+    category = CharField  # button, input, card, layout, text, media, form, navigation
+    type = CharField      # button|text|heading|input|...
+
+    # Cấu hình component
+    template_data = JSONField
+    # {
+    #   "type": "button",
+    #   "style": { ... },
+    #   "attributes": { ... },
+    #   "default_content": "Button"
+    # }
+
+    # Metadata
+    thumbnail_url = URLField (optional)
+    description = TextField (optional)
+    is_active = Boolean (default True)
+
+    # Ownership & visibility
+    is_system = Boolean  # template hệ thống
+    created_by = ForeignKey(User, optional)
+    is_public = Boolean  # cho phép người khác dùng
+
+    # Tags & usage
+    tags = JSONField  # ["primary", "rounded"]
+    usage_count = IntegerField (default 0)
+
+    created_at = DateTime
+    updated_at = DateTime
+=======
     name = CharField
     category = CharField  # button, input, card, layout
     type = CharField
@@ -508,6 +656,7 @@ class ComponentTemplate(models.Model):
     description = TextField
     is_active = Boolean
     created_at = DateTime
+>>>>>>> origin/main
 ```
 
 ---
@@ -1698,19 +1847,31 @@ Backend/
 
 ## 🧪 Testing
 
+<<<<<<< HEAD
+### Automated tests
+=======
 ### Run tests
+>>>>>>> origin/main
 
 ```bash
 python manage.py test
 ```
 
+<<<<<<< HEAD
+Chạy test cho module cụ thể:
+=======
 ### Run specific test
+>>>>>>> origin/main
 
 ```bash
 python manage.py test api.tests.test_projects
 ```
 
+<<<<<<< HEAD
+Coverage:
+=======
 ### Coverage
+>>>>>>> origin/main
 
 ```bash
 pip install coverage
@@ -1718,6 +1879,30 @@ coverage run --source='.' manage.py test
 coverage report
 ```
 
+<<<<<<< HEAD
+### Manual API testing status (2026-03-02)
+
+- **Đã test & PASS (theo `API_TEST_REPORT.md`)**:
+  - Auth: register, login, refresh, me, update profile, change-password, logout (token cũ bị blacklist).  
+  - Health: `/api/health/`.  
+  - Projects: list, create, export project (zip).  
+  - Members: invite (editor, viewer), list, update role, remove member, transfer ownership, owner-leave (bị chặn đúng nghiệp vụ).  
+  - Screens/Versions: tạo screen qua API, backfill version v1, list versions cho screen seed.  
+  - Export: export toàn bộ project với format `html`.
+
+- **Chưa test hoặc mới test một phần** (theo `API_UNTESTED_CHECKLIST.md`):
+  - OCR flows: upload, status, create screen from OCR, retry, các case lỗi file/size/quyền.  
+  - Component templates: categories, popular, create/update/delete template, use template.  
+  - Export single screen (HTML/React/Vue) trên screen mới tạo qua API.  
+  - Negative cases cho Auth/Projects/Screens/Members/Versions (404/400/403/401).
+
+Chi tiết request/response thực tế xem thêm:
+
+- `API_TEST_REPORT.md`: log đầy đủ các API đã gọi.  
+- `API_UNTESTED_CHECKLIST.md`: danh sách API và case còn lại cần test.
+
+=======
+>>>>>>> origin/main
 ---
 
 ## 📝 Development Guidelines
